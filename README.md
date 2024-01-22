@@ -5,7 +5,7 @@ Cypress
 Setup
 Clone Repository:
 
-git clone https://github.com/your-username/wolt-big-tasty-test.git
+git clone https://github.com/Fregat255/wolt-big-tasty-test.git
 Navigate to Project Directory:
 
 cd wolt-big-tasty-test
