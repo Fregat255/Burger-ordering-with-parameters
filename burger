@@ -1,0 +1,80 @@
+
+describe('Burger Ordering Process', () => {
+    const deliveryAddress = 'Kauno Dokas';
+    const burgerName = 'Big Tasty';
+    const burgerPrice = '6.05';
+  
+    beforeEach(() => {
+      cy.visit('https://www.wolt.com');
+    });
+  
+    it('Test 1: Error in Restaurant Name - Nothing Appears', () => {
+      const incorrectRestaurant = 'Non-Existing Restaurant';
+  
+      cy.get('[data-test-id="search-input"]').type(deliveryAddress);
+      cy.get('[data-test-id="search-button"]').click();
+      cy.get('[data-test-id="restaurant-name-input"]').type(incorrectRestaurant);
+      cy.contains('No results found').should('be.visible');
+    });
+  
+    it('Test 2: Correct Restaurant, But Non-Existing Burger Name - Nothing Returns', () => {
+      const correctRestaurant = 'McDonald\'s';
+      const nonExistingBurger = 'Non-Existing Burger';
+
+      cy.get('[data-test-id="search-input"]').type(deliveryAddress);
+      cy.get('[data-test-id="search-button"]').click();
+      cy.get('[data-test-id="restaurant-name"]').contains(correctRestaurant).click();
+      cy.get('[data-test-id="burger-name-input"]').type(nonExistingBurger);
+      cy.get('[data-test-id="search-button"]').click();
+  
+      cy.contains('No results found').should('be.visible');
+    });
+  
+    it('Test 3: Ambiguous Restaurant and Burger Name - Multiple Options Returned', () => {
+      const ambiguousRestaurant = 'Ambiguous Restaurant';
+      const ambiguousBurger = 'Ambiguous Burger';
+
+      cy.get('[data-test-id="search-input"]').type(deliveryAddress);
+      cy.get('[data-test-id="search-button"]').click();
+      cy.get('[data-test-id="restaurant-name-input"]').type(ambiguousRestaurant);
+      cy.get('[data-test-id="burger-name-input"]').type(ambiguousBurger);
+      cy.get('[data-test-id="search-button"]').click();
+      cy.get('[data-test-id="restaurant-options"]').should('have.length.greaterThan', 1);
+      cy.get('[data-test-id="burger-options"]').should('have.length.greaterThan', 1);
+    });
+  
+    it('Test 4: Typo in Burger Name with Correct Restaurant - Nothing Returns', () => {
+      const correctRestaurant = 'McDonald\'s';
+      const typoInBurger = 'Burgr Name';
+  
+      cy.get('[data-test-id="search-input"]').type(deliveryAddress);
+      cy.get('[data-test-id="search-button"]').click();
+      cy.get('[data-test-id="restaurant-name"]').contains(correctRestaurant).click();
+      cy.get('[data-test-id="burger-name-input"]').type(typoInBurger);
+      cy.get('[data-test-id="search-button"]').click();
+
+      cy.contains('No results found').should('be.visible');
+    });
+  
+    it('Test 5: Correct Restaurant and Burger Name - Order Should be Added', () => {
+      const correctRestaurant = 'McDonald\'s';
+      const paymentMethod = 'Credit Card'; 
+  
+      cy.get('[data-test-id="search-input"]').type(deliveryAddress);
+      cy.get('[data-test-id="search-button"]').click();
+      cy.get('[data-test-id="restaurant-name"]').contains(correctRestaurant).click();
+      cy.get('[data-test-id="menu item"]').contains(burgerName).click();
+      cy.get('[data-test-id="add to cart"]').click();
+      cy.get('[data-test-id="cart item"]').should('contain', burgerName);
+      cy.get('[data-test-id="cart item"]').should('contain', burgerPrice); 
+      cy.get('[data-test-id="back to menu"]').click(); 
+      cy.get('[data-test-id="cart item"]').should('not.exist');
+      cy.get('[data-test-id="proceed to checkout"]').click();
+      cy.get('[data-test-id="delivery-options"]').select('Courier'); 
+      cy.get('[data-test-id="delivery-address-input"]').type(deliveryAddress);
+      cy.get('[data-test-id="payment-options"]').select(paymentMethod); 
+      cy.get('[data-test-id="submit-order"]').click();
+  
+      cy.contains('Order Confirmation').should('be.visible');
+    });
+  });
